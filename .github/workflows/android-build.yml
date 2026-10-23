@@ -24,10 +24,12 @@ jobs:
           gradle-version: 8.7
 
       - name: Run unit tests
-        run: gradle testDebugUnitTest --no-daemon
+        shell: bash
+        run: gradle testDebugUnitTest --no-daemon --console=plain 2>&1 | tee build.log
 
       - name: Build debug APK
-        run: gradle assembleDebug --no-daemon
+        shell: bash
+        run: gradle assembleDebug --no-daemon --console=plain 2>&1 | tee -a build.log
 
       - name: Verify the APK has no INTERNET permission
         run: |
@@ -42,3 +44,13 @@ jobs:
         with:
           name: app-debug
           path: app/build/outputs/apk/debug/app-debug.apk
+
+      # Runs only when something above failed: puts the real errors at the very bottom of the log.
+      - name: Show compile errors
+        if: failure()
+        shell: bash
+        run: |
+          echo "=========== KOTLIN / KSP ERRORS ==========="
+          grep -E "^e: |^error: |\.kt:[0-9]+" build.log | head -40 || true
+          echo "=========== WHAT WENT WRONG ==========="
+          grep -A6 "What went wrong" build.log | head -30 || true
