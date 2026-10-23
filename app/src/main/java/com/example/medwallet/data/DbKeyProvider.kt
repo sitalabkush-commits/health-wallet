@@ -23,11 +23,12 @@ object DbKeyProvider {
             EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
         )
-        var pass = prefs.getString(KEY, null)
-        if (pass == null) {
+        val existing: String? = prefs.getString(KEY, null)
+        val pass: String = existing ?: run {
             val bytes = ByteArray(32).also { SecureRandom().nextBytes(it) }
-            pass = Base64.encodeToString(bytes, Base64.NO_WRAP)
-            prefs.edit().putString(KEY, pass).commit() // commit: must be persisted before the DB is created
+            val fresh: String = Base64.encodeToString(bytes, Base64.NO_WRAP)
+            prefs.edit().putString(KEY, fresh).commit() // commit: must be persisted before the DB is created
+            fresh
         }
         return pass.toByteArray(Charsets.UTF_8)
     }
