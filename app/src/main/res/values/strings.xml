@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Medical Wallet</string>
+    <string name="widget_label">Emergency Info</string>
+    <string name="widget_description">Blood group, allergies and emergency contact at a glance</string>
+</resources>
